@@ -1,8 +1,6 @@
 console.log('何かが起こるはずです。');
 
 
-console.log('from the content script yo');
-
 const new_page = `
         <html>
             <head>
@@ -21,7 +19,11 @@ const popup = `
         <p>hello</p>
     </div>`
 
-// const html_test = chrome.runtime.getURL('../test.html');
+// document.open()
+// document.write(new_page)
+// document.close()
+
+const html_test = chrome.runtime.getURL('test.html');
 // fetch(html_test).then((html) => {
 //     document.open()
 //     document.write(html.json.toString)
@@ -29,62 +31,78 @@ const popup = `
 //     console.log("i got no clue if this is wokrign, htm_test");
 // })
 
-window.setInterval(() => {
-  console.log('every 60 seconds');
-}, 1000 * 60)
+// do something when url changes
+window.onclick = () => {
+  console.log("clicked");
+}
 
-// Page has finished loading
-window.onload = function () {
+// window.setInterval(() => {
+// page has finished loading
+window.onload = () => {
   /** @type {HTMLVideoElement} */
   const video = document.querySelector("video");
   if (video) {
-    const solid_box = document.createElement("div");
-    video.style.position = "relative";
-    solid_box.style.position = "absolute";
-    solid_box.style.width = "100px";
-    solid_box.style.height = "100px";
-    solid_box.style.backgroundColor = "#FFC0CB";
-    solid_box.style.bottom = '0';
-    solid_box.style.zIndex = "99999";
-    solid_box.style.transition = "all 0.5s";
-    solid_box.style.left = "50%";
-    solid_box.innerText = "死ね, ばか";
-    solid_box.style.transform = "translateX(-50%)";
-    video.parentElement.appendChild(solid_box);
     console.log("Element found:", video);
-    // document.open()
-    // document.write(new_page)
-    // document.close()
-    solid_box.onclick = () => {
-      solid_box.style.display = "none";
+    video.pause();
+
+    const dim_video = document.createElement("div");
+    dim_video.style.position = "absolute";
+    dim_video.style.width = "100%";
+    dim_video.style.height = "100%";
+    dim_video.style.bottom = '0';
+    dim_video.style.zIndex = "444"; dim_video.style.backgroundColor = "rgba(0,0,0,0.5)";
+    video.parentElement.insertAdjacentElement("beforebegin", dim_video);
+
+    // append html_test into the dim_video element
+
+    dim_video.onclick = () => {
+      dim_video.style.display = "none";
     }
+
+    // const solid_box = document.createElement("div");
+    const image = document.createElement("img");
+    image.src = chrome.runtime.getURL("images/mem-webp.webp");
+    video.style.position = "relative";
+    image.style.position = "absolute";
+    image.style.height = "55%";
+    image.style.bottom = '0';
+    image.style.right = '2rem';
+    image.style.zIndex = "444";
+    image.style.transition = "all 0.5s";
+    video.parentElement.insertAdjacentElement("beforebegin", image);
+
+    image.onclick = () => {
+      image.style.width = "0";
+      image.style.display = "none";
+
+      chrome.runtime.sendMessage("close_tab", (response) => {
+        console.log(response);
+      });
+
+
+    }
+
+    const main_text = document.createElement("h1");
+    main_text.style.position = "absolute";
+    main_text.textContent = "死ね, ばか";
+    main_text.style.color = "white";
+    main_text.style.fontSize = "25px";
+    main_text.style.transform = "translate(-50%, -50%)";
+    main_text.style.top = "50%";
+    main_text.style.left = "50%";
+    dim_video.appendChild(main_text);
+
   } else {
     console.log("Element not found");
-  }
+  };
+  // let num1 = Math.ceil(Math.random() * 12);
+  // let num2 = Math.ceil(Math.random() * 12);
 
-  let num1 = Math.ceil(Math.random() * 12);
-  let num2 = Math.ceil(Math.random() * 12);
+  // let answer = prompt(`${num1} * ${num2}`);
 
-  let answer = prompt(`${num1} * ${num2}`);
-
-  alert((num1 * num2) == answer)
+  // alert((num1 * num2) == answer)
+  // chrome.storage.local.set({ key: "value" }, () => {
+  //   console.log(`Value is set to 'value'`);
+  // });
 };
-
-let currentVideo = "";
-
-
-chrome.runtime.onMessage.addListener((obj, sender, response) => {
-  console.log('i dont know if it works');
-  const { type, value, videoId, random } = obj;
-  if (type === "NEW") {
-    currentVideo = videoId;
-    newVideoLoaded(currentVideo);
-    console.log('the new thing works lol');
-  }
-});
-
-const newVideoLoaded = (video) => {
-  console.log(`inside new video loaded ${video}`);
-}
-
-newVideoLoaded();
+// }, 1000);

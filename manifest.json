@@ -13,10 +13,7 @@
     "default_icon": "images/icon-16.png"
   },
   "icons": {
-    "16": "images/icon-16.png",
-    "32": "images/icon-32.png",
-    "48": "images/icon-48.png",
-    "128": "images/icon-128.png"
+    "16": "images/icon-16.png"
   },
   "content_scripts": [
     {
@@ -36,6 +33,7 @@
     {
       "resources": [
         "*.html",
+        "images/*.webp",
         "scripts/*.js"
       ],
       "matches": [
@@ -44,5 +42,8 @@
         "*://*.twitch.tv/*"
       ]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 }
