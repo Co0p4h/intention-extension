@@ -5,12 +5,31 @@ console.log("何かが起こるはずです。");
 /** @type {number} */
 
 
-const user_storage = { current_count: 0, max_count: 0 };
-const storage = chrome.storage.sync.get().then((items) => {
-  user_storage.current_count = items.current_count;
-  user_storage.max_count = items.max_count;
-  // console.log(user_storage, "user storage");
-});
+// const user_storage = { current_count: 0, max_count: 0 };
+
+// const stor = async () => {
+//   const storage = chrome.storage.sync.get().then((items) => {
+//     user_storage.current_count = items.current_count;
+//     user_storage.max_count = items.max_count;
+//     // console.log(user_storage, "user storage");
+//   });
+
+//   try {
+//     await storage;
+//     console.log("user storage", user_storage);
+//   } catch (e) {
+//     console.log(e, "you are stupid");
+//   }
+// }
+
+const update_count = async () => {
+  chrome.storage.sync.get("current_count").then((result) => {
+    const new_count = result.current_count + 1;
+    chrome.storage.sync.set({ current_count: new_count }).then(() => {
+      console.log(`Value is set to ${new_count}`);
+    });
+  });
+}
 
 
 // const test_style = "body { margin: 0; }\
@@ -24,38 +43,29 @@ const storage = chrome.storage.sync.get().then((items) => {
 //                     }"
 
 // this should probably be in a background script...
-const update_count = async () => {
-  // chrome.storage.sync.get("current_count", (result) => {
-  //   console.log("result", result);
-  try {
-    await storage;
-    console.log("user storage", user_storage);
-  } catch (e) {
-    console.log(e, "you are stupid");
-  }
 
-  // if (result.current_count < max_count) {
-  if (user_storage.current_count < user_storage.max_count) {
-    // chrome.storage.sync.set({ current_count: result.current_count + 1 }, () => {
-    chrome.storage.sync.set({ current_count: user_storage.current_count + 1 }, () => {
-      console.log("Value incremented");
-    });
-  } else { // this should be seperate function
-    // chrome.storage.sync.set({ current_count: 0 }, () => {
-    //   console.log("Value reset");
-    // });
-    // replace with a function that resets the value after a certain amount of time
-    // if the value is greater than 5 then replace the whole page with html and css 
-    // document.open();
-    // document.write(`<style>${test_style}</style>`)
-    // document.write(`<iframe src="${chrome.runtime.getURL("test.html")}"></iframe>`);
-    // document.close();
-    // replace url with extension url
-    // chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
-    console.log("You have reached the max count");
-  }
-  // });
-}
+//   // if (result.current_count < max_count) {
+//   if (user_storage.current_count < user_storage.max_count) {
+//     // chrome.storage.sync.set({ current_count: result.current_count + 1 }, () => {
+//     chrome.storage.sync.set({ current_count: user_storage.current_count + 1 }, () => {
+//       console.log("Value incremented");
+//     });
+//   } else { // this should be seperate function
+//     // chrome.storage.sync.set({ current_count: 0 }, () => {
+//     //   console.log("Value reset");
+//     // });
+//     // replace with a function that resets the value after a certain amount of time
+//     // if the value is greater than 5 then replace the whole page with html and css 
+//     // document.open();
+//     // document.write(`<style>${test_style}</style>`)
+//     // document.write(`<iframe src="${chrome.runtime.getURL("test.html")}"></iframe>`);
+//     // document.close();
+//     // replace url with extension url
+//     // chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
+//     console.log("You have reached the max count");
+//   }
+//   // });
+// }
 
 // function createDomElement(html) {
 //   const dom = new DOMParser().parseFromString(html, 'text/html');
@@ -74,7 +84,7 @@ const createButton = (text, color = "black", background = "white") => {
   button.textContent = text;
   button.style.color = color;
   button.style.backgroundColor = background;
-  button.style.border = "none";
+  button.style.border = `1px solid white`
   button.style.padding = "0.75rem 1.75rem";
   button.style.borderRadius = "0.25rem";
   button.style.cursor = "pointer";
@@ -103,8 +113,6 @@ const code = () => {
     // dim_video.style.animationDuration = "0.5s";
     video.parentElement.insertAdjacentElement("beforebegin", dim_video);
 
-
-    // const solid_box = document.createElement("div");
     const image = document.createElement("img");
     image.id = "reflect_image";
     image.src = chrome.runtime.getURL("images/mem-webp.webp");
@@ -115,7 +123,8 @@ const code = () => {
     image.style.right = "2rem";
     image.style.zIndex = "444";
     image.style.transition = "all 0.5s";
-    video.parentElement.insertAdjacentElement("beforebegin", image);
+    image.style.pointerEvents = "none";
+    dim_video.appendChild(image);
 
     image.onclick = () => {
       image.style.width = "0";
@@ -139,11 +148,14 @@ const code = () => {
 
     const main_text = document.createElement("h1");
     main_text.id = "reflect_main_text";
-    main_text.textContent = "死ね, ばか";
+    // main_text.textContent = "死ね, ばか";
+    main_text.innerHTML = "are you sure you<br>want to watch this?";
+    // main_text.textContent = "";
     main_text.style.color = "white";
-    main_text.style.fontSize = "25px";
+    main_text.style.fontSize = "2.5rem";
     main_text.style.textAlign = "center";
     main_text.style.fontWeight = "400";
+    main_text.style.letterSpacing = "0.1rem";
     dim_video_content.appendChild(main_text);
 
     const buttons = document.createElement("div");
@@ -155,6 +167,7 @@ const code = () => {
     const no_button = createButton("no", "black", "white");
     buttons.appendChild(yes_button);
     buttons.appendChild(no_button);
+    no_button.focus(); // auto focus on no button
 
     const change_text_and_hide = (text) => {
       main_text.textContent = text;
@@ -167,11 +180,9 @@ const code = () => {
 
     yes_button.onclick = () => {
       change_text_and_hide("You are a good person");
-      // ome.storage.sync.set({ test });
     };
 
     no_button.onclick = () => {
-      chrome.storage.sync.set({ test });
       change_text_and_hide("You are a bad person");
       // probably a better way to do this instead of changing both settimeouts
       chrome.runtime.sendMessage("close_tab", (response) => {
@@ -221,6 +232,12 @@ window.onload = () => {
       console.log(response);
       update_count();
     });
+
+    // chrome.runtime.sendMessage("add_count", (response) => {
+    //   console.log('what the tkljwetkljwekltjwekl j');
+    //   console.log("add c messaeg", response);
+    //   console.log(response);
+    // });
   }
 };
 
