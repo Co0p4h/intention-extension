@@ -2,7 +2,7 @@
   "name": "reflection",
   "version": "1.0",
   "manifest_version": 3,
-  "description": "Add the reading time to Chrome Extension documentation articles",
+  "description": "you are a goldfish",
   "permissions": [
     "storage",
     "tabs",
@@ -18,14 +18,15 @@
   "content_scripts": [
     {
       "run_at": "document_start",
+      "matches": [
+        "*://www.instagram.com/*",
+        "*://www.youtube.com/*",
+        "*://www.youtube.com/watch*",
+        "*://www.youtube.com/shorts/*",
+        "*://www.twitch.tv/*"
+      ],
       "js": [
         "scripts/content-script.js"
-      ],
-      "matches": [
-        "*://*.instagram.com/*",
-        "*://*.youtube.com/watch*",
-        "*://*.youtube.com/shorts/*",
-        "*://*.twitch.tv/*"
       ]
     }
   ],
