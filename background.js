@@ -26,30 +26,27 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       `Old value was "${oldValue}", new value is "${newValue}".`
     );
   }
-
-  // if (changes.current_count.newValue >= 5) {
-  //   console.log("you have reached the max count asdf");
-  //   chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
-  //   console.log("sdlkfj");
-  // }
-
 });
 
 // add 1 to the current count from content script
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "add_count") {
     const { current_count } = await chrome.storage.sync.get(["current_count"]);
+    const new_count = current_count + 1;
+    await chrome.storage.sync.set({ current_count: new_count });
+    console.log(`value is set to ${new_count}`);
+  }
+});
+
+// check if the current count is greater than the max count
+chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
+  if (message === "check_count") {
+    const { current_count } = await chrome.storage.sync.get(["current_count"]);
     const { max_count } = await chrome.storage.sync.get(["max_count"]);
-    if (current_count < max_count) {
-      const new_count = current_count + 1;
-      await chrome.storage.sync.set({ current_count: new_count });
-      console.log(`value is set to ${new_count}`);
-      // send_response({ msg: "count_added", count: new_count });
-    } else {
-      // I also want to add a check somewhere before the page loads
+    if (current_count >= max_count) {
       chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
-      // send_response({ msg: "max_count_reached" });
     }
+    console.log('checking count');
   }
 });
 
@@ -70,7 +67,6 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
     console.log(change_info);
     console.log(tab);
     console.log(tab.id);
-    console.log(tab_id);
 
     // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
     chrome.tabs.sendMessage(tab_id, {

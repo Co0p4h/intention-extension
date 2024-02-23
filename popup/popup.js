@@ -16,8 +16,3 @@ chrome.storage.sync.get("current_count").then((result) => {
 });
 
 document.getElementById("max_count").addEventListener("change", set_max_count);
-
-// how it is structured
-// user = {current_count: number,
-//         max_count: number,
-//         
