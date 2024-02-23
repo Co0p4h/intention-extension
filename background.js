@@ -76,5 +76,3 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
     })
   }
 });
-
-

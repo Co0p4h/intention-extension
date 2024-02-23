@@ -167,6 +167,9 @@ window.onload = () => {
   code();
 
   chrome.runtime.onMessage.addListener((request, sender, send_response) => {
+    document.getElementById("reflect_main_text").remove();
+    document.getElementById("reflect_image").remove();
+    document.getElementById("reflect_video").remove();
     code();
   });
 };
