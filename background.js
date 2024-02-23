@@ -63,10 +63,9 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
 });
 
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
-  if (change_info.url && matches_regex(change_info.url)) {
+  if (change_info.url && tab.active && matches_regex(change_info.url)) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT
     console.log(change_info);
     console.log(tab);
-    console.log(tab.id);
 
     // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
     chrome.tabs.sendMessage(tab_id, {
