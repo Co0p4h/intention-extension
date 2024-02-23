@@ -4,34 +4,13 @@ console.log("何かが起こるはずです。");
 
 /** @type {number} */
 
-
-// const user_storage = { current_count: 0, max_count: 0 };
-
-// const stor = async () => {
-//   const storage = chrome.storage.sync.get().then((items) => {
-//     user_storage.current_count = items.current_count;
-//     user_storage.max_count = items.max_count;
-//     // console.log(user_storage, "user storage");
-//   });
-
-//   try {
-//     await storage;
-//     console.log("user storage", user_storage);
-//   } catch (e) {
-//     console.log(e, "you are stupid");
-//   }
-// }
-
-const update_count = async () => {
-  chrome.storage.sync.get("current_count").then((result) => {
-    const new_count = result.current_count + 1;
-    chrome.storage.sync.set({ current_count: new_count }).then(() => {
-      console.log(`Value is set to ${new_count}`);
-    });
-  });
+window.onclick = () => {
+  // chrome.runtime.sendMessage("add_count");
+  // , (response) => {
+  //   console.log("response: ");
+  //   console.log(response);
+  // });
 }
-
-
 // const test_style = "body { margin: 0; }\
 //                     iframe {\
 //                       position: absolute;\
@@ -130,9 +109,6 @@ const code = () => {
       image.style.width = "0";
       image.style.display = "none";
       video.play();
-
-      test1();
-
     };
 
     const dim_video_content = document.createElement("div");
@@ -179,11 +155,12 @@ const code = () => {
     }
 
     yes_button.onclick = () => {
-      change_text_and_hide("You are a good person");
+      change_text_and_hide("You are a bad person");
+      chrome.runtime.sendMessage("add_count");
     };
 
     no_button.onclick = () => {
-      change_text_and_hide("You are a bad person");
+      change_text_and_hide("You are a good person");
       // probably a better way to do this instead of changing both settimeouts
       chrome.runtime.sendMessage("close_tab", (response) => {
         console.log(response);
@@ -202,7 +179,6 @@ const code = () => {
 // page has finished loading
 window.onload = () => {
   code();
-  test1();
   // let num1 = Math.ceil(Math.random() * 12);
   // let num2 = Math.ceil(Math.random() * 12);
   // let answer = prompt(`${num1} * ${num2}`);
@@ -227,22 +203,10 @@ window.onload = () => {
     // };
   });
 
-  window.onclick = () => {
-    chrome.runtime.sendMessage("close_tab", (response) => {
-      console.log(response);
-      update_count();
-    });
 
-    // chrome.runtime.sendMessage("add_count", (response) => {
-    //   console.log('what the tkljwetkljwekltjwekl j');
-    //   console.log("add c messaeg", response);
-    //   console.log(response);
-    // });
-  }
 };
 
-async function test1() {
-  const data = await chrome.storage.sync.get("test");
-  console.log(data);
-
-}
+// async function test1() {
+//   const data = await chrome.storage.sync.get("test");
+//   console.log(data);
+// }

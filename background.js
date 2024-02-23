@@ -26,37 +26,38 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       `Old value was "${oldValue}", new value is "${newValue}".`
     );
   }
-  // if the current count is greater than the max count then print hello
-  if (changes.current_count.newValue > 5) {
-    console.log("hello");
-  }
+
+  // if (changes.current_count.newValue >= 5) {
+  //   console.log("you have reached the max count asdf");
+  //   chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
+  //   console.log("sdlkfj");
+  // }
 
 });
 
 // add 1 to the current count from content script
-chrome.runtime.onMessage.addListener((message, sender, send_response) => {
+chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "add_count") {
-    chrome.storage.sync.get(["current_count"]).then((result) => {
-      const new_count = result.current_count + 1;
-      chrome.storage.sync.set({ current_count: new_count }).then(() => {
-        console.log(`Value is set to ${new_count}`);
-        send_response({ msg: "count_added", count: new_count });
-      });
-    });
+    const { current_count } = await chrome.storage.sync.get(["current_count"]);
+    const { max_count } = await chrome.storage.sync.get(["max_count"]);
+    if (current_count < max_count) {
+      const new_count = current_count + 1;
+      await chrome.storage.sync.set({ current_count: new_count });
+      console.log(`value is set to ${new_count}`);
+      // send_response({ msg: "count_added", count: new_count });
+    } else {
+      // I also want to add a check somewhere before the page loads
+      chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
+      // send_response({ msg: "max_count_reached" });
+    }
   }
 });
-
 
 // -----------------------------------------------
 
 chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   if (message === "close_tab") {
     send_response({ msg: "tab_closed" });
-
-    // chrome.storage.sync.get(["current_count"]).then((result) => {
-    //   console.log("idk: ");
-    //   console.log(result);
-    // });
 
     // setTimeout(() => {
     //   chrome.tabs.remove(sender.tab.id);
@@ -72,7 +73,6 @@ chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
     console.log(tab_id);
 
     // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
-
     chrome.tabs.sendMessage(tab_id, {
       msg: 'whatasl;dkfjksladjfklsdjfklsdjfls',
       url: change_info.url,
