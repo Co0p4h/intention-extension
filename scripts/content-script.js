@@ -5,10 +5,6 @@ const add_and_check_count = async () => {
   await chrome.runtime.sendMessage("check_count");
 }
 
-// window.onclick = () => {
-// chrome.runtime.sendMessage("add_count");
-// }
-
 // const test_style = "body { margin: 0; }\
 //                     iframe {\
 //                       position: absolute;\
@@ -71,13 +67,10 @@ const createButton = (text, color = "black", background = "white") => {
 const code = () => {
   /** @type {HTMLVideoElement | null} */
   const video = document.querySelector("video");
-  if (!video) { console.log("Element not found"); return; }
-  console.log("Element found:", video);
+  if (!video) { console.log("video not found"); return; }
+  console.log("element found:", video);
 
-  // pause the video, there is probably a better way to do this using some wait function or something...
-  setTimeout(() => {
-    video.pause();
-  }, 444);
+  video.addEventListener("loadeddata", () => video.pause());
 
   const dim_video = document.createElement("div");
   dim_video.id = "reflect_video";
@@ -147,6 +140,7 @@ const code = () => {
   yes_button.onclick = () => {
     change_text_and_hide("You are a bad person");
     add_and_check_count();
+    video.play();
   };
 
   no_button.onclick = () => {
@@ -157,19 +151,34 @@ const code = () => {
       console.log(response);
     });
   };
+
+  // if (dim_video.style.display !== "none") {
+  //   console.log("video is playing, pausing 123");
+  video.pause();
+  // }
 }
 
-// before the page loads? TODO: look this up later
-chrome.runtime.sendMessage("check_count");
+// -----------------------------------------------
+// all of this is still bad and not working as intended
 
-// page has finished loading
-window.onload = () => {
+// runs when the page is initially loaded
+document.addEventListener("DOMContentLoaded", () => {
+  chrome.runtime.sendMessage("check_count");
+});
+
+// runs when url changes 
+chrome.runtime.onMessage.addListener((request, sender, send_response) => {
+  document.getElementById("reflect_main_text").remove();
+  document.getElementById("reflect_image").remove();
+  document.getElementById("reflect_video").remove();
   code();
+});
 
-  chrome.runtime.onMessage.addListener((request, sender, send_response) => {
-    document.getElementById("reflect_main_text").remove();
-    document.getElementById("reflect_image").remove();
-    document.getElementById("reflect_video").remove();
-    code();
-  });
+window.onload = () => {
+  // code();
 };
+
+// page completely loaded
+window.addEventListener("load", () => {
+  code();
+});

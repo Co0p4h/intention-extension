@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
 });
 
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
-  if (change_info.url && tab.active && matches_regex(change_info.url)) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT
+  if (change_info.url && matches_regex(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT
     console.log(change_info);
     console.log(tab);
 
