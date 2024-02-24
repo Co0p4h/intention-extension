@@ -13,10 +13,12 @@ const matches_regex = (url) => {
   return websites.some(website => url.match(website));
 }
 
-const STORAGE_KEY = "user-count";
-
 chrome.storage.sync.set({ current_count: 0 }).then(() => {
   console.log("Value was set (testing sync)");
+});
+
+chrome.storage.sync.set({ max_count: 3 }).then(() => {
+  console.log("Value was set (max sync)");
 });
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -56,9 +58,9 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   if (message === "close_tab") {
     send_response({ msg: "tab_closed" });
 
-    // setTimeout(() => {
-    //   chrome.tabs.remove(sender.tab.id);
-    // }, 2000);
+    setTimeout(() => {
+      chrome.tabs.remove(sender.tab.id);
+    }, 2000);
   }
 });
 

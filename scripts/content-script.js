@@ -70,6 +70,7 @@ const code = () => {
   if (!video) { console.log("video not found"); return; }
   console.log("element found:", video);
 
+  // catch the video when page is loaded
   video.addEventListener("loadeddata", () => video.pause());
 
   const dim_video = document.createElement("div");
@@ -152,10 +153,8 @@ const code = () => {
     });
   };
 
-  // if (dim_video.style.display !== "none") {
-  //   console.log("video is playing, pausing 123");
+  // catch when the page is refreshed
   video.pause();
-  // }
 }
 
 // -----------------------------------------------
