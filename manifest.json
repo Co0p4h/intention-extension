@@ -6,7 +6,8 @@
   "permissions": [
     "storage",
     "tabs",
-    "scripting"
+    "scripting",
+    "alarms"
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -22,7 +23,6 @@
         "*://www.instagram.com/*",
         "*://www.youtube.com/*",
         "*://www.youtube.com/watch*",
-        "*://www.youtube.com/shorts/*",
         "*://www.twitch.tv/*"
       ],
       "js": [

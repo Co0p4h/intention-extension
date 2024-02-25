@@ -1,7 +1,7 @@
 const websites = [
   "^https://.*\.instagram\.com/.*$",
   "^https://www\.youtube\.com/watch.*$",
-  "^https://www\.youtube\.com/shorts.*$",
+  // "^https://www\.youtube\.com/shorts.*$",
   "^https://.*\.twitch\.tv/.*$",
 ]
 
@@ -13,19 +13,24 @@ const matches_regex = (url) => {
   return websites.some(website => url.match(website));
 }
 
-chrome.storage.sync.set({ current_count: 0 }).then(() => {
-  console.log("Value was set (testing sync)");
+// set initial values
+chrome.storage.sync.set({
+  current_count: 0,
+  max_count: 3,
+  timer_minutes: 120,
+}).then(() => {
+  console.log("set initial values and timer");
+  chrome.storage.sync.get(["timer_minutes"]).then(({ timer_minutes }) => {
+    chrome.alarms.create("reduce_count", { periodInMinutes: timer_minutes });
+  });
 });
 
-chrome.storage.sync.set({ max_count: 3 }).then(() => {
-  console.log("Value was set (max sync)");
-});
-
+// show changes in for debugging
 chrome.storage.onChanged.addListener((changes, namespace) => {
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     console.log(
-      `Storage key "${key}" in namespace "${namespace}" changed.`,
-      `Old value was "${oldValue}", new value is "${newValue}".`
+      `storage key "${key}" in namespace "${namespace}" changed.`,
+      `old value was "${oldValue}", new value is "${newValue}".`
     );
   }
 });
@@ -43,12 +48,32 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
 // check if the current count is greater than the max count
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "check_count") {
+    // console.log('checking count');
     const { current_count } = await chrome.storage.sync.get(["current_count"]);
     const { max_count } = await chrome.storage.sync.get(["max_count"]);
     if (current_count >= max_count) {
       chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
     }
-    console.log('checking count');
+  }
+});
+
+// update the timer to user input
+chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
+  if (message === "update_timer") {
+    const { timer_minutes } = await chrome.storage.sync.get(["timer_minutes"]);
+    chrome.alarms.clear("reduce_count");
+    chrome.alarms.create("reduce_count", { periodInMinutes: parseInt(timer_minutes) });
+  }
+});
+
+// -1 from the current count every time the alarm goes off
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === "reduce_count") {
+    const { current_count } = await chrome.storage.sync.get(["current_count"]);
+    if (current_count > 0) {
+      const new_count = current_count - 1;
+      await chrome.storage.sync.set({ current_count: new_count });
+    }
   }
 });
 
@@ -56,16 +81,13 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
 
 chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   if (message === "close_tab") {
-    send_response({ msg: "tab_closed" });
-
-    setTimeout(() => {
-      chrome.tabs.remove(sender.tab.id);
-    }, 2000);
+    chrome.tabs.remove(sender.tab.id);
+    // send_response({ msg: "tab_closed" });
   }
 });
 
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
-  if (change_info.url && matches_regex(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT
+  if (change_info.url && matches_regex(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT for when opening link in a new tab
     console.log(change_info);
     console.log(tab);
 

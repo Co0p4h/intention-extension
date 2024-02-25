@@ -11,15 +11,19 @@
         <h1>cool-brand</h1>
     </a>
     <div class="center">
-        <div class="container">
+        <!-- <div class="container">
             <h2>toggle</h2>
             <input type="checkbox" class="toggle">
+        </div> -->
+        <!-- <p>www.current-website.com</p> -->
+        <p>current count: <span id="current_count"></span></p>
+        <div id="max_count_container">
+            <p>max count: </p>
+            <input type="number" id="max_count" name="counter" min="1" max="20">
+            <p>reduce counter every: </p>
+            <input type="number" id="reduce_count" name="counter" min="0" max="720">
+            <p>minutes</p>
         </div>
-        <p>www.current-website.com</p>
-        <h3>current count: <span id="current_count"></span></h3>
-        <h3>counter?: </h3>
-        <!-- user input max counter -->
-        <input type="number" id="max_count" name="counter" min="1" max="100" value="1">
     </div>
     <script src="/popup/popup.js"></script>
 </body>

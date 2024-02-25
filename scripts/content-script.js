@@ -64,7 +64,7 @@ const createButton = (text, color = "black", background = "white") => {
   return button;
 }
 
-const code = () => {
+const main = () => {
   /** @type {HTMLVideoElement | null} */
   const video = document.querySelector("video");
   if (!video) { console.log("video not found"); return; }
@@ -129,13 +129,15 @@ const code = () => {
   buttons.appendChild(no_button);
   no_button.focus();
 
+  const delay_time = 2000;
+
   const change_text_and_hide = (text) => {
     main_text.textContent = text;
     yes_button.style.display = "none";
     no_button.style.display = "none";
     setTimeout(() => {
       dim_video.style.display = "none";
-    }, 2000);
+    }, delay_time);
   }
 
   yes_button.onclick = () => {
@@ -147,10 +149,11 @@ const code = () => {
   no_button.onclick = () => {
     change_text_and_hide("You are a good person");
 
-    // probably a better way to do this instead of changing both settimeouts
-    chrome.runtime.sendMessage("close_tab", (response) => {
-      console.log(response);
-    });
+    setTimeout(() => {
+      chrome.runtime.sendMessage("close_tab", (response) => {
+        console.log(response);
+      });
+    }, delay_time);
   };
 
   // catch when the page is refreshed
@@ -158,26 +161,23 @@ const code = () => {
 }
 
 // -----------------------------------------------
-// all of this is still bad and not working as intended
+// all of this is still bad 
 
 // runs when the page is initially loaded
 document.addEventListener("DOMContentLoaded", () => {
   chrome.runtime.sendMessage("check_count");
 });
 
-// runs when url changes 
-chrome.runtime.onMessage.addListener((request, sender, send_response) => {
-  document.getElementById("reflect_main_text").remove();
-  document.getElementById("reflect_image").remove();
-  document.getElementById("reflect_video").remove();
-  code();
-});
-
 window.onload = () => {
-  // code();
+  main();
 };
 
-// page completely loaded
-window.addEventListener("load", () => {
-  code();
+// runs when url changes 
+chrome.runtime.onMessage.addListener((request, sender, send_response) => {
+  // remove the elements from the page if they exist
+  document.getElementById("reflect_main_text")?.remove();
+  document.getElementById("reflect_image")?.remove();
+  document.getElementById("reflect_video")?.remove();
+  main();
 });
+
