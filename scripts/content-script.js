@@ -5,52 +5,6 @@ const add_and_check_count = async () => {
   await chrome.runtime.sendMessage("check_count");
 }
 
-// const test_style = "body { margin: 0; }\
-//                     iframe {\
-//                       position: absolute;\
-//                       top: 0;\
-//                       left: 0;\
-//                       width: 100 %;\
-//                       height: 100 %;\
-//                       border: 0;\
-//                     }"
-
-// this should probably be in a background script...
-
-//   // if (result.current_count < max_count) {
-//   if (user_storage.current_count < user_storage.max_count) {
-//     // chrome.storage.sync.set({ current_count: result.current_count + 1 }, () => {
-//     chrome.storage.sync.set({ current_count: user_storage.current_count + 1 }, () => {
-//       console.log("Value incremented");
-//     });
-//   } else { // this should be seperate function
-//     // chrome.storage.sync.set({ current_count: 0 }, () => {
-//     //   console.log("Value reset");
-//     // });
-//     // replace with a function that resets the value after a certain amount of time
-//     // if the value is greater than 5 then replace the whole page with html and css 
-//     // document.open();
-//     // document.write(`<style>${test_style}</style>`)
-//     // document.write(`<iframe src="${chrome.runtime.getURL("test.html")}"></iframe>`);
-//     // document.close();
-//     // replace url with extension url
-//     // chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
-//     console.log("You have reached the max count");
-//   }
-//   // });
-// }
-
-// function createDomElement(html) {
-//   const dom = new DOMParser().parseFromString(html, 'text/html');
-//   return dom.body.firstElementChild;
-// }
-
-// const element_test = createDomElement(`
-//   <div>
-//     <h1>testing element creation</h1>
-//   </div>
-// `);
-
 // function to create button with different text
 const createButton = (text, color = "black", background = "white") => {
   const button = document.createElement("button");
@@ -71,7 +25,10 @@ const main = () => {
   console.log("element found:", video);
 
   // catch the video when page is loaded
-  video.addEventListener("loadeddata", () => video.pause());
+  video.addEventListener("loadeddata", () => {
+    video.pause();
+    // I want to make it so you can't play the video until you click yes
+  });
 
   const dim_video = document.createElement("div");
   dim_video.id = "reflect_video";
@@ -144,6 +101,7 @@ const main = () => {
     change_text_and_hide("You are a bad person");
     add_and_check_count();
     video.play();
+    // video.controls = true;
   };
 
   no_button.onclick = () => {
@@ -161,6 +119,11 @@ const main = () => {
 }
 
 // -----------------------------------------------
+const is_extension_enabled = async () => {
+  const result = await chrome.storage.local.get("extension_enabled");
+  return result.extension_enabled;
+}
+
 // all of this is still bad 
 
 // runs when the page is initially loaded
@@ -180,4 +143,6 @@ chrome.runtime.onMessage.addListener((request, sender, send_response) => {
   document.getElementById("reflect_video")?.remove();
   main();
 });
+
+
 
