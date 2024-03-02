@@ -70,33 +70,3 @@ a {
     border: solid 3px white;
     box-shadow: .3rem 0.3rem 0 0 white; */
 /* } */
-
-#toggle {
-    --b1: 0 0% 85%;
-    --bc: 20 50% 80%;
-    --tglbg: hsl(var(--b1));
-    --handleoffset: 1.5rem;
-    --handleoffsetcalculator: calc(var(--handleoffset) * -1);
-    /* makes it negative */
-    --togglehandleborder: 0 0;
-    flex-shrink: 0;
-    height: 1.5rem;
-    width: 3rem;
-    cursor: pointer;
-    appearance: none;
-    border: 1px solid;
-    border-color: hsl(var(--bc)/var(--tw-border-opacity));
-    background-color: hsl(var(--bc)/var(--tw-bg-opacity));
-    border-radius: 1.9rem;
-    transition: box-shadow .2s ease-out;
-    /* this is the circle... */
-    box-shadow: var(--handleoffsetcalculator) 0 0 2px var(--tglbg) inset,
-        0 0 0 2px var(--tglbg) inset,
-        var(--togglehandleborder);
-}
-
-#toggle:checked {
-    --handleoffsetcalculator: var(--handleoffset);
-    --tw-border-opacity: 1;
-    --tw-bg-opacity: 1;
-}

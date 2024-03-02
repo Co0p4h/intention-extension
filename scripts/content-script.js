@@ -18,10 +18,17 @@ const createButton = (text, color = "black", background = "white") => {
   return button;
 }
 
-const main = () => {
+const main = async () => {
   /** @type {HTMLVideoElement | null} */
+  // const { current_url } = await chrome.storage.local.get("current_url");
+  // if (current_url === window.location.href) return;
+  // else chrome.storage.local.set({ current_url: window.location.href });
+
+  // const { tab_click_status } = await chrome.storage.local.get(["tab_click_status"]);
+
   const video = document.querySelector("video");
   if (!video) { console.log("video not found"); return; }
+
   console.log("element found:", video);
 
   // catch the video when page is loaded
@@ -101,11 +108,13 @@ const main = () => {
     change_text_and_hide("You are a bad person");
     add_and_check_count();
     video.play();
+    chrome.runtime.sendMessage({ click_status: "yes" });
     // video.controls = true;
   };
 
   no_button.onclick = () => {
     change_text_and_hide("You are a good person");
+    chrome.runtime.sendMessage({ click_status: "yes" });
 
     setTimeout(() => {
       chrome.runtime.sendMessage("close_tab", (response) => {
@@ -116,21 +125,11 @@ const main = () => {
 
   // catch when the page is refreshed
   video.pause();
+
 }
 
 // -----------------------------------------------
-const is_extension_enabled = async () => {
-  const result = await chrome.storage.local.get("extension_enabled");
-  return result.extension_enabled;
-}
-
 // all of this is still bad 
-
-// runs when the page is initially loaded
-// document.addEventListener("DOMContentLoaded", () => {
-//   chrome.runtime.sendMessage("check_count");
-// });
-
 
 window.onload = () => {
   // print initial url
@@ -141,6 +140,11 @@ window.onload = () => {
     return;
   } else
     main();
+  // chrome.runtime.sendMessage("should_i_run", (response) => {
+  //   console.log("repsonsesldkjfklsd", response);
+  //   if (response === "yes") main();
+  //   else console.log("no");
+  // });
 };
 
 // runs when url changes 
@@ -160,25 +164,3 @@ chrome.runtime.onMessage.addListener((request, sender, send_response) => {
       main();
   }
 });
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   if (message === "remove_elements") {
-//     // Remove all injected elements
-//     document.getElementById("reflect_main_text")?.remove();
-//     document.getElementById("reflect_image")?.remove();
-//     document.getElementById("reflect_video")?.remove();
-//   }
-// });
-
-// chrome.runtime.onMessage.addListener((request, sender, send_response) => {
-//   if (request.msg === "add_elements") {
-//     console.log("add elements12312312312321", request, sender);
-//     if (request.url.match("^https://www\.youtube\.com/shorts.*$")) {
-//       console.log("shorts video");
-//       return;
-//     } else
-//       main();
-
-//     console.log('sldkfjsdkl');
-//   }
-// });

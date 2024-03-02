@@ -16,7 +16,6 @@ const is_website = (url) => {
 }
 
 // default values
-let extension_enabled = true;
 let current_count = 1;
 let max_count = 2; // 3
 let timer_minutes = 1; // 120
@@ -28,10 +27,11 @@ chrome.runtime.onInstalled.addListener((object) => {
 
   // set initial values
   chrome.storage.local.set({
-    extension_enabled,
     current_count,
     max_count,
     timer_minutes,
+    /** @type {Object<string, boolean>} */
+    tab_click_status: {},
   }).then(() => {
     console.log("set initial values and timer");
     chrome.storage.local.get(["timer_minutes"]).then(({ timer_minutes }) => {
@@ -81,8 +81,12 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
 chrome.tabs.onActivated.addListener((active_info) => {
   // chrome.runtime.sendMessage("check_count");
   chrome.tabs.get(active_info.tabId, (tab) => {
-    console.log('tab changed: ' + tab.url);
-    // check_count(tab.url);
+    if (is_website(tab.url)) {
+      console.log('tab changed: ' + tab.url);
+      // updagte the current url
+      chrome.storage.local.set({ current_url: tab.url });
+      // check_count(tab.url);
+    }
   });
 });
 
@@ -123,77 +127,38 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   }
 });
 
-let current_url = "";
+// let tab_click_status = {};
 
-chrome.tabs.onUpdated.addListener(async (tab_id, change_info, tab) => {
-  // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
-  if (current_url === change_info.url) {
-    console.log('same url');
-    return;
-  } else {
-    console.log('different url');
-  }
-
-  // const extension_enabled = await chrome.storage.local.get("extension_enabled");
-  // log the url when the page is refreshed or url changes
-  if (change_info.status === "loading" && tab.active && is_website(tab.url)) {
-    console.log("Page refreshed. URL: ");
-    console.log(tab.url);
-    check_count(tab.url);
-    chrome.tabs.sendMessage(tab_id, {
-      msg: 'url_changed',
-      url: tab.url,
-      tab_id: tab_id,
-    })
-
-  }
-
-  current_url = change_info.url;
-  // if (extension_enabled && change_info.url && is_website(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT for when opening link in a new tab
-});
-
-// -----------------------------------------------
-// disable/ enable extension
-// -----------------------------------------------
-
-// // disable extension switched from options
-// chrome.runtime.onMessage.addListener((message, sender, send_response) => {
-//   if (message === "disable_extension") {
-//     // if they disable it while on the blocked.html page, go back to the previous page
-//     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-//       if (tabs[0].url === chrome.runtime.getURL("pages/blocked.html")) {
-//         chrome.tabs.goBack(tabs[0].id);
-//       }
-//     });
-//     chrome.tabs.query({}, (tabs) => {
-//       for (let tab of tabs) {
-//         if (is_website(tab.url)) {
-//           chrome.tabs.sendMessage(tab.id, "remove_elements");
-//           // console.log(tab);
-//         }
-//       }
-//     });
+// chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
+//   // const { tab_click_status } = await chrome.storage.local.get(["tab_click_status"]);
+//   // log url
+//   console.log(sender.tab.url, "helelejrkjlwerjklerjke url");
+//   if (message.click_status === "yes" && sender.tab) {
+//     tab_click_status[sender.tab.id] = true;
+//   } else if (sender.tab && message.click_status === "no") {
+//     delete tab_click_status[sender.tab.id];
 //   }
-// });
-
-// // enable extension switched from options
-// chrome.runtime.onMessage.addListener((message, sender, send_response) => {
-//   if (message === "enable_extension") {
-//     chrome.tabs.query({}, (tabs) => {
-//       for (let tab of tabs) {
-//         if (is_website(tab.url)) {
-//           // chrome.tabs.sendMessage(tab.id, "check_count");
-//           chrome.tabs.sendMessage(tab.id, { msg: "add_elements", url: tab.url });
-//         }
-//       }
-//     });
-//   }
+//   console.log("before", tab_click_status);
+//   chrome.storage.local.set({ tab_click_status });
+//   console.log("after", tab_click_status);
 // });
 
 
+// chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
+//   if (message === "should_i_run") {
+//     const { tab_click_status } = await chrome.storage.local.get(["tab_click_status"]);
+//     console.log("should i run", tab_click_status);
+//     // const should_run = "yes";
+//     // console.log(sender);
+//     // chrome.storage.local.get(["click_status"], (result) => {
+//     //   console.log("should i run", result);
+//     //   if (result.click_status[sender.tab.id]) {
+//     //     send_response("no");
+//     //   } else {
+//     //     send_response("yes");
+//     //   }
+//     // });
+//     send_response("yes");
+//   }
+// });
 
-async function sendMessageToActiveTab(message) {
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  const response = await chrome.tabs.sendMessage(tab.id, message);
-  // TODO: Do something with the response.
-}
