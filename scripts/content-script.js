@@ -2,7 +2,7 @@ console.log("何かが起こるはずです。");
 
 const add_and_check_count = async () => {
   await chrome.runtime.sendMessage("add_count");
-  await chrome.runtime.sendMessage("check_count");
+  // await chrome.runtime.sendMessage("check_count");
 }
 
 // function to create button with different text
@@ -127,22 +127,58 @@ const is_extension_enabled = async () => {
 // all of this is still bad 
 
 // runs when the page is initially loaded
-document.addEventListener("DOMContentLoaded", () => {
-  chrome.runtime.sendMessage("check_count");
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   chrome.runtime.sendMessage("check_count");
+// });
+
 
 window.onload = () => {
-  main();
+  // print initial url
+  // console.log("initial url", window.location.href);
+
+  if (window.location.href.match("^https://www\.youtube\.com/shorts.*$")) {
+    console.log("shorts video");
+    return;
+  } else
+    main();
 };
 
 // runs when url changes 
 chrome.runtime.onMessage.addListener((request, sender, send_response) => {
-  // remove the elements from the page if they exist
-  document.getElementById("reflect_main_text")?.remove();
-  document.getElementById("reflect_image")?.remove();
-  document.getElementById("reflect_video")?.remove();
-  main();
+  if (request.msg === "url_changed") {
+    // remove the elements from the page if they exist
+    document.getElementById("reflect_main_text")?.remove();
+    document.getElementById("reflect_image")?.remove();
+    document.getElementById("reflect_video")?.remove();
+
+    const url = request.url;
+
+    if (url.match("^https://www\.youtube\.com/shorts.*$")) {
+      console.log("shorts video");
+      return;
+    } else
+      main();
+  }
 });
 
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//   if (message === "remove_elements") {
+//     // Remove all injected elements
+//     document.getElementById("reflect_main_text")?.remove();
+//     document.getElementById("reflect_image")?.remove();
+//     document.getElementById("reflect_video")?.remove();
+//   }
+// });
 
+// chrome.runtime.onMessage.addListener((request, sender, send_response) => {
+//   if (request.msg === "add_elements") {
+//     console.log("add elements12312312312321", request, sender);
+//     if (request.url.match("^https://www\.youtube\.com/shorts.*$")) {
+//       console.log("shorts video");
+//       return;
+//     } else
+//       main();
 
+//     console.log('sldkfjsdkl');
+//   }
+// });

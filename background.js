@@ -1,5 +1,7 @@
 const websites = [
   "^https://.*\.instagram\.com/.*$",
+  // "^https://www\.youtube\.com/.*$",
+  "^https://www\.youtube\.com/?$",
   "^https://www\.youtube\.com/watch.*$",
   // "^https://www\.youtube\.com/shorts.*$",
   "^https://.*\.twitch\.tv/.*$",
@@ -15,9 +17,9 @@ const is_website = (url) => {
 
 // default values
 let extension_enabled = true;
-let current_count = 0;
-let max_count = 3;
-let timer_minutes = 120;
+let current_count = 1;
+let max_count = 2; // 3
+let timer_minutes = 1; // 120
 
 chrome.runtime.onInstalled.addListener((object) => {
   // if (object.reason === chrome.runtime.OnInstalledReason.INSTALL) {
@@ -59,17 +61,38 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   }
 });
 
+const check_count = async (tab_url) => {
+  const { current_count } = await chrome.storage.local.get(["current_count"]);
+  const { max_count } = await chrome.storage.local.get(["max_count"]);
+  if (current_count >= max_count && is_website(tab_url)) {
+    chrome.tabs.update({ url: chrome.runtime.getURL("pages/blocked.html") });
+  }
+}
+
 // check if the current count is greater than the max count
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "check_count") {
     // console.log('checking count');
-    const { current_count } = await chrome.storage.local.get(["current_count"]);
-    const { max_count } = await chrome.storage.local.get(["max_count"]);
-    if (current_count >= max_count) {
-      chrome.tabs.update({ url: chrome.runtime.getURL("test.html") });
-    }
+    check_count(sender.tab.url);
   }
 });
+
+// check count when the tab changes
+chrome.tabs.onActivated.addListener((active_info) => {
+  // chrome.runtime.sendMessage("check_count");
+  chrome.tabs.get(active_info.tabId, (tab) => {
+    console.log('tab changed: ' + tab.url);
+    // check_count(tab.url);
+  });
+});
+
+// chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
+//   // chrome.runtime.sendMessage("check_count");
+//   if (tab.active && change_info.url && is_website(change_info.url)) {
+//     console.log('tab updated', tab);
+//     check_count(tab.url);
+//   }
+// });
 
 // update the timer to user input
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
@@ -100,17 +123,77 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   }
 });
 
-chrome.tabs.onUpdated.addListener(async (tab_id, change_info, tab) => {
-  const extension_enabled = await chrome.storage.local.get("extension_enabled");
-  if (extension_enabled && change_info.url && is_website(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT for when opening link in a new tab
-    console.log(change_info);
-    console.log(tab);
+let current_url = "";
 
-    // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
+chrome.tabs.onUpdated.addListener(async (tab_id, change_info, tab) => {
+  // THIS IS BROKEN (IT IS JUST BAD IN GENEARL I THINK)
+  if (current_url === change_info.url) {
+    console.log('same url');
+    return;
+  } else {
+    console.log('different url');
+  }
+
+  // const extension_enabled = await chrome.storage.local.get("extension_enabled");
+  // log the url when the page is refreshed or url changes
+  if (change_info.status === "loading" && tab.active && is_website(tab.url)) {
+    console.log("Page refreshed. URL: ");
+    console.log(tab.url);
+    check_count(tab.url);
     chrome.tabs.sendMessage(tab_id, {
-      msg: 'whatasl;dkfjksladjfklsdjfklsdjfls',
-      url: change_info.url,
+      msg: 'url_changed',
+      url: tab.url,
       tab_id: tab_id,
     })
+
   }
+
+  current_url = change_info.url;
+  // if (extension_enabled && change_info.url && is_website(change_info.url) && tab.active) { // TAB.ACTIVE == TRUE IS VERY IMPORTANT for when opening link in a new tab
 });
+
+// -----------------------------------------------
+// disable/ enable extension
+// -----------------------------------------------
+
+// // disable extension switched from options
+// chrome.runtime.onMessage.addListener((message, sender, send_response) => {
+//   if (message === "disable_extension") {
+//     // if they disable it while on the blocked.html page, go back to the previous page
+//     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+//       if (tabs[0].url === chrome.runtime.getURL("pages/blocked.html")) {
+//         chrome.tabs.goBack(tabs[0].id);
+//       }
+//     });
+//     chrome.tabs.query({}, (tabs) => {
+//       for (let tab of tabs) {
+//         if (is_website(tab.url)) {
+//           chrome.tabs.sendMessage(tab.id, "remove_elements");
+//           // console.log(tab);
+//         }
+//       }
+//     });
+//   }
+// });
+
+// // enable extension switched from options
+// chrome.runtime.onMessage.addListener((message, sender, send_response) => {
+//   if (message === "enable_extension") {
+//     chrome.tabs.query({}, (tabs) => {
+//       for (let tab of tabs) {
+//         if (is_website(tab.url)) {
+//           // chrome.tabs.sendMessage(tab.id, "check_count");
+//           chrome.tabs.sendMessage(tab.id, { msg: "add_elements", url: tab.url });
+//         }
+//       }
+//     });
+//   }
+// });
+
+
+
+async function sendMessageToActiveTab(message) {
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const response = await chrome.tabs.sendMessage(tab.id, message);
+  // TODO: Do something with the response.
+}

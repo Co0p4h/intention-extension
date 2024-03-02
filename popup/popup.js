@@ -17,17 +17,24 @@ async function update_timer(event) {
 
 function toggle_extension(event) {
   chrome.storage.local.set({ extension_enabled: event.target.checked });
+  if (!event.target.checked) {
+    chrome.runtime.sendMessage("disable_extension");
+    console.log("extension disabled");
+  } else {
+    chrome.runtime.sendMessage("enable_extension");
+    console.log("extension enabled");
+  }
 }
 
 chrome.storage.local.get("current_count").then((result) => {
   document.getElementById("current_count").innerText = result.current_count;
+  // chrome.action.setBadgeText({ text: result.current_count.toString() });
 });
 
 chrome.storage.local.get("max_count").then((result) => {
   const max_count = document.getElementById("max_count");
   max_count.value = result.max_count;
   max_count.addEventListener("change", set_max_count);
-  // chrome.action.setBadgeText({ text: result.max_count });
 });
 
 chrome.storage.local.get("timer_minutes").then((result) => {
@@ -40,9 +47,9 @@ chrome.storage.local.get("extension_enabled").then((result) => {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.id = 'toggle';
-  checkbox.addEventListener('change', toggle_extension);
+  checkbox.checked = result.extension_enabled;
   document.getElementById("toggle_container").appendChild(checkbox);
-  document.getElementById("toggle").checked = result.extension_enabled;
+  checkbox.addEventListener('change', toggle_extension);
 });
 
 
