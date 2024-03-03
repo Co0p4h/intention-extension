@@ -30,8 +30,8 @@ chrome.runtime.onInstalled.addListener((object) => {
     current_count,
     max_count,
     timer_minutes,
-    /** @type {Object<string, boolean>} */
-    tab_click_status: {},
+    // /** @type {Object<string, boolean>} */
+    // tab_click_status: {},
   }).then(() => {
     console.log("set initial values and timer");
     chrome.storage.local.get(["timer_minutes"]).then(({ timer_minutes }) => {
@@ -115,6 +115,18 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       const new_count = current_count - 1;
       await chrome.storage.local.set({ current_count: new_count });
     }
+  }
+});
+
+chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
+  if (change_info.status === "loading" && tab.active && is_website(tab.url)) {
+    console.log(tab.url);
+    check_count(tab.url);
+    chrome.tabs.sendMessage(tab_id, {
+      msg: 'url_changed',
+      url: tab.url,
+      tab_id: tab_id,
+    })
   }
 });
 

@@ -20,11 +20,6 @@ const createButton = (text, color = "black", background = "white") => {
 
 const main = async () => {
   /** @type {HTMLVideoElement | null} */
-  // const { current_url } = await chrome.storage.local.get("current_url");
-  // if (current_url === window.location.href) return;
-  // else chrome.storage.local.set({ current_url: window.location.href });
-
-  // const { tab_click_status } = await chrome.storage.local.get(["tab_click_status"]);
 
   const video = document.querySelector("video");
   if (!video) { console.log("video not found"); return; }
@@ -125,26 +120,18 @@ const main = async () => {
 
   // catch when the page is refreshed
   video.pause();
-
 }
 
 // -----------------------------------------------
 // all of this is still bad 
-
 window.onload = () => {
-  // print initial url
-  // console.log("initial url", window.location.href);
-
   if (window.location.href.match("^https://www\.youtube\.com/shorts.*$")) {
     console.log("shorts video");
     return;
-  } else
+  } else {
     main();
-  // chrome.runtime.sendMessage("should_i_run", (response) => {
-  //   console.log("repsonsesldkjfklsd", response);
-  //   if (response === "yes") main();
-  //   else console.log("no");
-  // });
+    console.log('from on load');
+  }
 };
 
 // runs when url changes 
@@ -160,7 +147,10 @@ chrome.runtime.onMessage.addListener((request, sender, send_response) => {
     if (url.match("^https://www\.youtube\.com/shorts.*$")) {
       console.log("shorts video");
       return;
-    } else
+    } else {
+
       main();
+      console.log('from on message');
+    }
   }
 });
