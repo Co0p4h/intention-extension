@@ -9,6 +9,12 @@
     "scripting",
     "alarms"
   ],
+  "host_permissions": [
+    "*://www.instagram.com/*",
+    "*://www.youtube.com/*",
+    "*://www.youtube.com/watch*",
+    "*://www.twitch.tv/*"
+  ],
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": "images/icon-16.png"

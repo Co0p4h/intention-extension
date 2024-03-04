@@ -24,6 +24,11 @@ const main = async () => {
   const video = document.querySelector("video");
   if (!video) { console.log("video not found"); return; }
 
+  // remove the elements from the page if they exist
+  document.getElementById("reflect_main_text")?.remove();
+  document.getElementById("reflect_image")?.remove();
+  document.getElementById("reflect_video")?.remove();
+
   console.log("element found:", video);
 
   // catch the video when page is loaded
@@ -95,21 +100,24 @@ const main = async () => {
     yes_button.style.display = "none";
     no_button.style.display = "none";
     setTimeout(() => {
-      dim_video.style.display = "none";
+      // dim_video.style.display = "none";
+      dim_video.remove();
     }, delay_time);
   }
 
   yes_button.onclick = () => {
     change_text_and_hide("You are a bad person");
-    add_and_check_count();
+    // add_and_check_count();
+    chrome.runtime.sendMessage("add_count");
+
     video.play();
-    chrome.runtime.sendMessage({ click_status: "yes" });
+    // chrome.runtime.sendMessage({ click_status: "yes" });
     // video.controls = true;
   };
 
   no_button.onclick = () => {
     change_text_and_hide("You are a good person");
-    chrome.runtime.sendMessage({ click_status: "yes" });
+    // chrome.runtime.sendMessage({ click_status: "yes" });
 
     setTimeout(() => {
       chrome.runtime.sendMessage("close_tab", (response) => {
@@ -129,6 +137,7 @@ window.onload = () => {
     console.log("shorts video");
     return;
   } else {
+    // check count
     main();
     console.log('from on load');
   }
@@ -137,14 +146,8 @@ window.onload = () => {
 // runs when url changes 
 chrome.runtime.onMessage.addListener((request, sender, send_response) => {
   if (request.msg === "url_changed") {
-    // remove the elements from the page if they exist
-    document.getElementById("reflect_main_text")?.remove();
-    document.getElementById("reflect_image")?.remove();
-    document.getElementById("reflect_video")?.remove();
 
-    const url = request.url;
-
-    if (url.match("^https://www\.youtube\.com/shorts.*$")) {
+    if (request.url.match("^https://www\.youtube\.com/shorts.*$")) {
       console.log("shorts video");
       return;
     } else {

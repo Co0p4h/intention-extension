@@ -1,8 +1,8 @@
 const websites = [
   "^https://.*\.instagram\.com/.*$",
-  // "^https://www\.youtube\.com/.*$",
-  "^https://www\.youtube\.com/?$",
-  "^https://www\.youtube\.com/watch.*$",
+  "^https://www\.youtube\.com/.*$",
+  // "^https://www\.youtube\.com/?$",
+  // "^https://www\.youtube\.com/watch.*$",
   // "^https://www\.youtube\.com/shorts.*$",
   "^https://.*\.twitch\.tv/.*$",
 ]
@@ -12,26 +12,21 @@ const websites = [
  * @returns {boolean}
  */
 const is_website = (url) => {
+  if (url.match("^https://www\.youtube\.com/redirect.*$")) return false;
   return websites.some(website => url.match(website));
 }
 
 // default values
 let current_count = 1;
-let max_count = 2; // 3
+let max_count = 3;
 let timer_minutes = 1; // 120
 
 chrome.runtime.onInstalled.addListener((object) => {
-  // if (object.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-  //   chrome.tabs.create({ url: "/pages/options.html" });
-  // }
-
   // set initial values
   chrome.storage.local.set({
     current_count,
     max_count,
     timer_minutes,
-    // /** @type {Object<string, boolean>} */
-    // tab_click_status: {},
   }).then(() => {
     console.log("set initial values and timer");
     chrome.storage.local.get(["timer_minutes"]).then(({ timer_minutes }) => {
@@ -40,18 +35,21 @@ chrome.runtime.onInstalled.addListener((object) => {
   });
 });
 
-
 // show changes in for debugging
-chrome.storage.onChanged.addListener((changes, namespace) => {
+chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
     console.log(
       `storage key "${key}" in namespace "${namespace}" changed.`,
       `old value was "${oldValue}", new value is "${newValue}".`
     );
+    // if current count is greater than or equal to max count run on_max_count()
+    const { max_count } = await chrome.storage.local.get(["max_count"]);
+    if (key === "current_count" && (newValue >= max_count)) {
+      on_max_count();
+    }
   }
 });
 
-// add 1 to the current count from content script
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "add_count") {
     const { current_count } = await chrome.storage.local.get(["current_count"]);
@@ -61,42 +59,20 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   }
 });
 
-const check_count = async (tab_url) => {
+const check_count = async (tab_id, tab_url) => {
   const { current_count } = await chrome.storage.local.get(["current_count"]);
   const { max_count } = await chrome.storage.local.get(["max_count"]);
   if (current_count >= max_count && is_website(tab_url)) {
-    chrome.tabs.update({ url: chrome.runtime.getURL("pages/blocked.html") });
+    console.log('tab_id', tab_id, 'tab_url', tab_url, "tab blocked?");
+    chrome.tabs.update(tab_id, { url: chrome.runtime.getURL("pages/blocked.html") });
   }
 }
 
-// check if the current count is greater than the max count
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   if (message === "check_count") {
-    // console.log('checking count');
-    check_count(sender.tab.url);
+    check_count(sender.tab.id, sender.tab.url);
   }
 });
-
-// check count when the tab changes
-chrome.tabs.onActivated.addListener((active_info) => {
-  // chrome.runtime.sendMessage("check_count");
-  chrome.tabs.get(active_info.tabId, (tab) => {
-    if (is_website(tab.url)) {
-      console.log('tab changed: ' + tab.url);
-      // updagte the current url
-      chrome.storage.local.set({ current_url: tab.url });
-      // check_count(tab.url);
-    }
-  });
-});
-
-// chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
-//   // chrome.runtime.sendMessage("check_count");
-//   if (tab.active && change_info.url && is_website(change_info.url)) {
-//     console.log('tab updated', tab);
-//     check_count(tab.url);
-//   }
-// });
 
 // update the timer to user input
 chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
@@ -118,10 +94,11 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
+// check the count when the tab url changes or the page is refreshed
 chrome.tabs.onUpdated.addListener((tab_id, change_info, tab) => {
   if (change_info.status === "loading" && tab.active && is_website(tab.url)) {
-    console.log(tab.url);
-    check_count(tab.url);
+    console.log(tab.url, "tab updated from on updated listener loading");
+    check_count(tab_id, tab.url);
     chrome.tabs.sendMessage(tab_id, {
       msg: 'url_changed',
       url: tab.url,
@@ -173,4 +150,30 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
 //     send_response("yes");
 //   }
 // });
+
+chrome.tabs.onCreated.addListener((tab) => {
+  if (tab.id && tab.pendingUrl && is_website(tab.pendingUrl)) {
+    console.log('hello from on created', tab);
+    check_count(tab.id, tab.pendingUrl);
+  }
+});
+
+const on_max_count = () => {
+  chrome.tabs.query({
+    active: false, url: [
+      "*://www.instagram.com/*",
+      "*://www.youtube.com/*",
+      "*://www.twitch.tv/*"
+    ]
+  }, (tabs) => {
+    tabs.forEach(tab => {
+      if (tab.id && tab.url) {
+        // check_count(tab.id, tab.url);
+        // chrome.tabs.executeScript(tab.id, { file: "scripts/shorts.js" });
+        console.log('sldkfjlksdjf');
+        chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["scripts/shorts.js"] })
+      }
+    });
+  });
+}
 
