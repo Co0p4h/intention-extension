@@ -16,7 +16,9 @@ async function update_timer(event) {
 }
 
 chrome.storage.local.get("current_count").then((result) => {
-  document.getElementById("current_count").innerText = result.current_count;
+  const current_count = document.getElementById("current_count")
+  current_count.innerText = result.current_count;
+  current_count.title = "current count: " + result.current_count;
   // chrome.action.setBadgeText({ text: result.current_count.toString() });
 });
 

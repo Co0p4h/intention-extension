@@ -13,17 +13,16 @@
                 <h1>_intention.exe</h1>
             </s>
         </a>
+        <p id="current_count"></p>
     </div>
     <div id="line"></div>
-    <div class="center">
-        <p>current count: <span id="current_count"></span></p>
-        <div id="max_count_container">
-            <p>max count: </p>
-            <input type="number" id="max_count" name="counter" min="1" max="20">
-            <p>reduce counter every: </p>
-            <input type="number" id="reduce_count" name="counter" min="0" max="720">
-            <p>minutes</p>
-        </div>
+    <div id="set_count_container">
+        <p class="count_title">max count </p>
+        <input type="number" id="max_count" name="counter" min="1" max="100">
+        <p class="count_type">video</p>
+        <p class="count_title">reduce counter<br>every </p>
+        <input type="number" id="reduce_count" name="counter" min="0" max="720">
+        <p class="count_type">minutes</p>
     </div>
     <script src="/popup/popup.js"></script>
 </body>
