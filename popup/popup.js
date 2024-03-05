@@ -4,14 +4,15 @@ function set_max_count(event) {
   /** @type {number} */
   const max_count = event.target.value;
   chrome.storage.local.set({ max_count: max_count });
+  // add s...
+  const count_type_video = document.getElementById("count_type_video");
+  count_type_video.innerText = "video" + (max_count > 1 ? "s" : "");
 }
 
 async function update_timer(event) {
   /** @type {number} */
   const timer_minutes = event.target.value;
   await chrome.storage.local.set({ timer_minutes: timer_minutes });
-  // chrome.alarms.clear("reduce_count");
-  // chrome.alarms.create("reduce_count", { periodInMinutes: parseInt(timer_minutes) });
   chrome.runtime.sendMessage("update_timer");
 }
 

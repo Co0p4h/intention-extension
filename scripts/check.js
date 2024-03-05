@@ -1,4 +1,4 @@
-console.log("from short script");
+console.log("from check script");
 
 const reflect_video = document.getElementById("reflect_video");
 

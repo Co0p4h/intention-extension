@@ -18,7 +18,7 @@ const createButton = (text, color = "black", background = "white") => {
   return button;
 }
 
-const main = async () => {
+const generate_video_overlay = async () => {
   /** @type {HTMLVideoElement | null} */
 
   const video = document.querySelector("video");
@@ -97,8 +97,10 @@ const main = async () => {
 
   const change_text_and_hide = (text) => {
     main_text.textContent = text;
-    yes_button.style.display = "none";
-    no_button.style.display = "none";
+    // yes_button.style.display = "none";
+    // no_button.style.display = "none";
+    yes_button.remove();
+    no_button.remove();
     setTimeout(() => {
       // dim_video.style.display = "none";
       dim_video.remove();
@@ -131,29 +133,22 @@ const main = async () => {
 }
 
 // -----------------------------------------------
+
+const is_shorts_video = (url) => {
+  return url.match("^https://www\.youtube\.com/shorts.*$");
+}
+
 // all of this is still bad 
 window.onload = () => {
-  if (window.location.href.match("^https://www\.youtube\.com/shorts.*$")) {
-    console.log("shorts video");
-    return;
-  } else {
-    // check count
-    main();
-    console.log('from on load');
-  }
+  if (is_shorts_video(window.location.href)) return;
+  generate_video_overlay();
+  console.log('from on load');
 };
 
 // runs when url changes 
 chrome.runtime.onMessage.addListener((request, sender, send_response) => {
-  if (request.msg === "url_changed") {
-
-    if (request.url.match("^https://www\.youtube\.com/shorts.*$")) {
-      console.log("shorts video");
-      return;
-    } else {
-
-      main();
-      console.log('from on message');
-    }
+  if (request.msg === "url_changed" && !is_shorts_video(request.url)) {
+    generate_video_overlay();
+    console.log('from on message');
   }
 });

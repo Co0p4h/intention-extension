@@ -1,8 +1,8 @@
 {
-  "name": "reflection",
+  "name": "Intention",
   "version": "1.0",
   "manifest_version": 3,
-  "description": "you are a goldfish",
+  "description": "consume content with more intention",
   "permissions": [
     "storage",
     "tabs",
@@ -16,11 +16,10 @@
     "*://www.twitch.tv/*"
   ],
   "action": {
-    "default_popup": "popup/popup.html",
-    "default_icon": "images/icon-16.png"
+    "default_popup": "popup/popup.html"
   },
   "icons": {
-    "16": "images/icon-16.png"
+    "128": "images/icon-128.png"
   },
   "content_scripts": [
     {
