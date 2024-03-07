@@ -4,7 +4,6 @@ function set_max_count(event) {
   /** @type {number} */
   const max_count = event.target.value;
   chrome.storage.local.set({ max_count: max_count });
-  // add s...
   const count_type_video = document.getElementById("count_type_video");
   count_type_video.innerText = "video" + (max_count > 1 ? "s" : "");
 }
@@ -34,7 +33,3 @@ chrome.storage.local.get("timer_minutes").then((result) => {
   reduce_count.value = result.timer_minutes;
   reduce_count.addEventListener("change", update_timer);
 });
-
-
-
-

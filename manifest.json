@@ -10,7 +10,6 @@
     "alarms"
   ],
   "host_permissions": [
-    "*://www.instagram.com/*",
     "*://www.youtube.com/*",
     "*://www.youtube.com/watch*",
     "*://www.twitch.tv/*"
@@ -28,7 +27,6 @@
         "*://www.youtube.com/shorts*"
       ],
       "matches": [
-        "*://www.instagram.com/*",
         "*://www.youtube.com/*",
         "*://www.youtube.com/watch*",
         "*://www.twitch.tv/*"
@@ -46,7 +44,6 @@
         "scripts/*.js"
       ],
       "matches": [
-        "*://*.instagram.com/*",
         "*://*.youtube.com/*",
         "*://*.twitch.tv/*"
       ]
