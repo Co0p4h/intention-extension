@@ -102,7 +102,7 @@ const generate_video_overlay = () => {
 
   const delay_time = 2000;
 
-  const change_text_and_remove = (text) => {
+  const change_text_and_remove = async (text) => {
     main_text.textContent = text;
     buttons.remove();
     setTimeout(() => {
@@ -110,11 +110,37 @@ const generate_video_overlay = () => {
     }, delay_time);
   }
 
+  const show_notification = (current_count, max_count) => {
+    const notification = document.createElement("div");
+    notification.style.position = "fixed";
+    notification.style.bottom = "2rem";
+    notification.style.right = "2rem";
+    notification.style.padding = "2rem";
+    notification.style.backgroundColor = "rgba(0,0,0,0.9)";
+    notification.style.color = "white";
+    notification.style.borderRadius = "0.5rem";
+    notification.style.zIndex = "444";
+    notification.style.fontSize = "1.25rem";
+    if (current_count < max_count) {
+      notification.textContent = `You have watched ${current_count} videos. You can watch ${max_count - current_count} more.`;
+    } else {
+      notification.textContent = `You have watched ${current_count} videos. This is your last video!`;
+    }
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
+
   yes_button.onclick = () => {
-    change_text_and_remove("kill yourself haha (^_-)−☆");
+    chrome.runtime.sendMessage("add_count", async (response) => {
+      const { current_count } = response;
+      const { max_count } = await chrome.storage.local.get("max_count");
+      show_notification(current_count, max_count);
+    });
+    change_text_and_remove(`kill yourself haha (^_-)−☆`);
     video.removeEventListener("play", pause_video);
     video.play();
-    chrome.runtime.sendMessage("add_count");
   };
 
   no_button.onclick = () => {

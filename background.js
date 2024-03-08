@@ -13,13 +13,17 @@ chrome.runtime.onInstalled.addListener((object) => {
   });
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
+chrome.runtime.onMessage.addListener((message, sender, send_response) => {
   if (message === "add_count") {
-    const { current_count } = await chrome.storage.local.get(["current_count"]);
-    const new_count = current_count + 1;
-    await chrome.storage.local.set({ current_count: new_count });
-    console.log(`value is set to ${new_count}`);
+    (async () => {
+      const { current_count } = await chrome.storage.local.get(["current_count"]);
+      const new_count = current_count + 1;
+      await chrome.storage.local.set({ current_count: new_count });
+      console.log(`value is set to ${new_count}`);
+      send_response({ current_count: new_count });
+    })();
   }
+  return true;
 });
 
 /**
