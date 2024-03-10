@@ -6,7 +6,6 @@ chrome.runtime.onInstalled.addListener((object) => {
     timer_minutes: 2, // 120
   }).then(() => {
     // console.log("set initial values and timer");
-    // does it need to start counting down straight after install?
     chrome.storage.local.get(["timer_minutes"]).then(({ timer_minutes }) => {
       chrome.alarms.create("reduce_count", { periodInMinutes: timer_minutes });
     });
@@ -19,7 +18,7 @@ chrome.runtime.onMessage.addListener((message, sender, send_response) => {
       const { current_count } = await chrome.storage.local.get(["current_count"]);
       const new_count = current_count + 1;
       await chrome.storage.local.set({ current_count: new_count });
-      console.log(`value is set to ${new_count}`);
+      // console.log(`value is set to ${new_count}`);
       send_response({ current_count: new_count });
     })();
   }
@@ -66,7 +65,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, send_response) => {
   }
 });
 
-// -1 from the current count every time the alarm goes off
+// -1 from the current count every time the alarm goes off and send notification that you can watch another video
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === "reduce_count") {
     const { current_count } = await chrome.storage.local.get(["current_count"]);

@@ -17,20 +17,15 @@ const generate_video_overlay = () => {
   /** @type {HTMLVideoElement | null} */
   const video = document.querySelector("video");
   if (!video) return;
-  // if (!video) { console.log("video not found"); return; }
-  // console.log("element found:", video);
 
   // remove the elements from the page if they exist
   document.getElementById("reflect_main_text")?.remove();
   document.getElementById("reflect_image")?.remove();
   document.getElementById("reflect_video")?.remove();
 
-
   const pause_video = () => video.pause();
-
-  // catch the video when page is loaded
+  // catch the video when page is initially loaded
   video.addEventListener("loadeddata", pause_video);
-
   // catch when the page is refreshed
   pause_video();
 
@@ -44,12 +39,11 @@ const generate_video_overlay = () => {
   dim_video.style.backgroundColor = "rgba(0,0,0,0.75)";
   video.parentElement.insertAdjacentElement("beforebegin", dim_video);
 
-  // i hate this.
+  // add the event listener to the video if they try to play it
   document.onkeydown = (e) => {
     const buttons = document.getElementById("reflect-buttons");
     if (e.code === "Space" && buttons) {
-      video.addEventListener("play", pause_video);
-      // console.log("space pressed");
+      video.addEventListener("playing", pause_video);
     }
   };
 
@@ -116,16 +110,26 @@ const generate_video_overlay = () => {
     notification.style.bottom = "2rem";
     notification.style.right = "2rem";
     notification.style.padding = "2rem";
-    notification.style.backgroundColor = "rgba(0,0,0,0.9)";
+    notification.style.backgroundColor = "#212121";
+    notification.style.boxShadow = "0 0 1rem 0.25rem rgba(0,0,0,0.25)";
     notification.style.color = "white";
     notification.style.borderRadius = "0.5rem";
     notification.style.zIndex = "444";
     notification.style.fontSize = "1.25rem";
+    notification.style.cursor = "pointer";
     if (current_count < max_count) {
-      notification.textContent = `You have watched ${current_count} videos. You can watch ${max_count - current_count} more.`;
+      notification.innerHTML = `you have watched <span>${current_count}</span> videos. you can watch <span>${max_count - current_count}</span> more.`;
     } else {
-      notification.textContent = `You have watched ${current_count} videos. This is your last video!`;
+      notification.innerHTML = `you have watched ${current_count} videos. this is your <span>last video!</span>`;
     }
+    notification.querySelectorAll("span").forEach(span => {
+      span.style.color = "red";
+      span.style.fontWeight = "400";
+      span.style.fontSize = "1.5rem";
+    });
+
+    notification.onclick = () => notification.remove();
+
     document.body.appendChild(notification);
     setTimeout(() => {
       notification.remove();
@@ -138,8 +142,8 @@ const generate_video_overlay = () => {
       const { max_count } = await chrome.storage.local.get("max_count");
       show_notification(current_count, max_count);
     });
-    change_text_and_remove(`kill yourself haha (^_-)−☆`);
-    video.removeEventListener("play", pause_video);
+    change_text_and_remove(`____ yourself haha (^_-)−☆`);
+    video.removeEventListener("playing", pause_video);
     video.play();
   };
 
@@ -155,7 +159,7 @@ const generate_video_overlay = () => {
 
 // -----------------------------------------------
 
-// ALL OF THIS IS ALL STILL BAD 
+// ALL OF THIS IS BAD 
 
 const is_shorts_video = (url) => {
   const websites = ["^https://www\.youtube\.com/shorts.*$", "^https://www\.instagram\.com/reels.*$"];
@@ -167,9 +171,7 @@ const is_shorts_video = (url) => {
 window.onload = () => {
   if (is_shorts_video(window.location.href)) return;
   generate_video_overlay();
-  // let video = generate_video_overlay();
   // console.log('from on load');
-  // console.log(video);
 };
 
 // runs when url changes 
