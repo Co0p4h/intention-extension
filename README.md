@@ -16,9 +16,7 @@ a chrome extension designed to help you be more intentional about your online co
 - view your current video count
 
 # why it works...?
-the true value of intention isn't in its restrictions, but in the moment of awareness it creates. even if you increase your limits or occasionally disable the extension, the brief pause before watching content helps you ask:
-
-sure, it is easy to increase the limit of videos you can watch, reduce the time it takes for them to come back, or just turn off the extension, but that is not the point. the brief pause before watching content helps you ask:
+sure, it is easy to increase the limit of videos you can watch, reduce the time it takes for them to come back, or just turn off the extension, but that is not the point... the brief pause before watching content helps you ask:
 
 > "*do* i really want to watch this?"
 
