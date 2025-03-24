@@ -12,7 +12,8 @@
   "host_permissions": [
     "*://www.youtube.com/*",
     "*://www.youtube.com/watch*",
-    "*://www.twitch.tv/*"
+    "*://www.twitch.tv/*",
+    "https://animechan.io/"
   ],
   "action": {
     "default_popup": "popup/popup.html"

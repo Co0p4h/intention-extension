@@ -1,4 +1,4 @@
-console.log("we are all going to die!");
+// console.log("we are all going to die!");
 
 function set_max_count(event) {
   /** @type {number} */

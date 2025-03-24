@@ -2,8 +2,8 @@ chrome.runtime.onInstalled.addListener((object) => {
   // set initial values
   chrome.storage.local.set({
     current_count: 0,
-    max_count: 3,
-    timer_minutes: 2, // 120
+    max_count: 5,
+    timer_minutes: 60,
   }).then(() => {
     // console.log("set initial values and timer");
     chrome.storage.local.get(["timer_minutes"]).then(({ timer_minutes }) => {
@@ -43,7 +43,7 @@ const check_count = async (tab_id, tab_url) => {
   const { current_count } = await chrome.storage.local.get(["current_count"]);
   const { max_count } = await chrome.storage.local.get(["max_count"]);
   if (current_count >= max_count && is_website(tab_url)) {
-    console.log('tab_id', tab_id, 'tab_url', tab_url, "tab blocked?");
+    // console.log('tab_id', tab_id, 'tab_url', tab_url, "tab blocked?");
     chrome.tabs.update(tab_id, { url: chrome.runtime.getURL("pages/blocked.html") });
   }
 }
@@ -137,10 +137,10 @@ const on_max_count = () => {
 }
 
 function check() {
-  console.log("from check script");
+  // console.log("from check script");
   const reflect_video = document.getElementById("reflect_video");
   if (reflect_video) {
-    console.log("element found:", reflect_video);
+    // console.log("element found:", reflect_video);
     window.location.href = chrome.runtime.getURL("pages/blocked.html");
   }
 }

@@ -1,16 +1,36 @@
-# INTENTION
-The Intention browser extension is designed to help users become more intentional in their online content consumption habits. Its primary purpose is to encourage the consumption of longer-form content over shorter, potentially more distracting content.It acts as a way to check in with yourself, prompting you to actually use your brain every time a new video is clicked, and helping to break free from the infinite cycle of mindlessly consuming content without conscious awareness.
+# 「INTENTION」
+a chrome extension designed to help you be more intentional about your online content consumption habits...
 
-<img src="images/extension-example.png">
+<img src="images/example.png">
 
-- pressing yes adds one to the count.
-- pressing no closes the current tab.
-- if you reach the max count you can no longer access the website until the count is reduced.
-- if you click yes on the last video, all other tabs that are open and haven't been clicked 'yes' on will be blocked.
-- you can change the max videos you can watch and the rate at which the count decreases in the extension popup.
+# how it works
+- when you open a youtube video, a message will pop up asking if you are sure you want to watch the video.
+- clicking 'yes' increases the count by one.
+- clicking 'no' closes the tab.
+- once you reach your maximum video count, you will no longer be able to access the website until the count decreases.
+- if you click 'yes' on the last video, all other tabs that are open and haven't been clicked 'yes' on will be blocked.
 
+# settings
+- change your maximum video count
+- adjust how quickly your count resets
+- view your current video count
 
-sure, it is easy to increase the limit of videos you can watch, reduce the time it takes for them to come back, or just turn off the extension, but that is not the point. if you installed this extension, I know was is a reason for it. you WANT to stop mindlessly consuming so much content. if you increase the limit of videos you can watch, the message that comes up before the video plays still helps you to take a moment to think "*do* I really want to watch this?" which I think is very valuable. 
+# why it works...?
+the true value of intention isn't in its restrictions, but in the moment of awareness it creates. even if you increase your limits or occasionally disable the extension, the brief pause before watching content helps you ask:
+
+sure, it is easy to increase the limit of videos you can watch, reduce the time it takes for them to come back, or just turn off the extension, but that is not the point. the brief pause before watching content helps you ask:
+
+> "*do* i really want to watch this?"
+
+which i think is valuable enough to change your habits over time :D
+
+# installation
+1. download the zip file from the github repository
+2. unzip the file
+3. go to chrome://extensions/
+4. turn on developer mode
+5. click 'load unpacked'
+6. select the folder that you unzipped
 
 ## HELP
-PLEASE LEAVE FEEDBACK ON HOW I CAN IMPROVE THE CODE. I KNOW THAT IT IS TERRIBLE AND I REALLY WANT POINTERS.
+PLEASE LEAVE FEEDBACK ON HOW I CAN IMPROVE THE CODE. I KNOW THAT IT IS TERRIBLE AND I REALLY WANT IT TO BE BETTER!

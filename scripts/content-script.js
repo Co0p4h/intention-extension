@@ -1,4 +1,4 @@
-console.log("何かが起こるはずです。");
+// console.log("何かが起こるはずです。");
 
 // function to create button with different text
 const createButton = (text, color = "black", background = "white") => {
@@ -35,7 +35,7 @@ const generate_video_overlay = () => {
   dim_video.style.width = "100%";
   dim_video.style.height = "100%";
   dim_video.style.bottom = "0";
-  dim_video.style.zIndex = "444";
+  dim_video.style.zIndex = "4444";
   dim_video.style.backgroundColor = "rgba(0,0,0,0.75)";
   video.parentElement.insertAdjacentElement("beforebegin", dim_video);
 
@@ -55,7 +55,7 @@ const generate_video_overlay = () => {
   image.style.height = "60%";
   image.style.bottom = "0";
   image.style.right = "2rem";
-  image.style.zIndex = "444";
+  image.style.zIndex = "4444";
   image.style.transition = "all 0.5s";
   image.style.pointerEvents = "none";
   dim_video.appendChild(image);
@@ -114,7 +114,7 @@ const generate_video_overlay = () => {
     notification.style.boxShadow = "0 0 1rem 0.25rem rgba(0,0,0,0.25)";
     notification.style.color = "white";
     notification.style.borderRadius = "0.5rem";
-    notification.style.zIndex = "444";
+    notification.style.zIndex = "4444";
     notification.style.fontSize = "1.25rem";
     notification.style.cursor = "pointer";
     if (current_count < max_count) {
@@ -142,7 +142,8 @@ const generate_video_overlay = () => {
       const { max_count } = await chrome.storage.local.get("max_count");
       show_notification(current_count, max_count);
     });
-    change_text_and_remove(`____ yourself haha (^_-)−☆`);
+    // change_text_and_remove('(*´∀`)~♥');
+    change_text_and_remove("do better next time (´；ω；｀)");
     video.removeEventListener("playing", pause_video);
     video.play();
   };
